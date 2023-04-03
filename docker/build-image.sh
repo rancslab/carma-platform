@@ -19,6 +19,8 @@ USERNAME=usdotfhwastol
 cd "$(dirname "$0")"
 IMAGE=$(basename `git rev-parse --show-toplevel`)
 
+export DOCKER_BUILDKIT=0
+
 echo ""
 echo "##### $IMAGE Docker Image Build Script #####"
 echo ""
