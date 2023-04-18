@@ -220,6 +220,12 @@ namespace plan_delegator
             // The latest turn signal command published to turn_signal_command_pub_.
             autoware_msgs::msg::LampCmd latest_turn_signal_command_;
 
+            // Maps lanelet ID to its previous lanelet on the current route
+            std::unordered_map<std::string, std::string> previous_lanelets_map_;
+
+            // Maps lanelet ID to its starting downtrack on the current route
+            std::unordered_map<std::string, double> lanelet_starting_downtrack_map_;
+
             /**
              * \brief Callback function for triggering trajectory planning
              */
