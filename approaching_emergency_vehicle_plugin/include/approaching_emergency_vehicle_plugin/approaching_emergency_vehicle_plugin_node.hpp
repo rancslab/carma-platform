@@ -124,6 +124,8 @@ namespace approaching_emergency_vehicle_plugin
 
     carma_ros2_utils::SubPtr<carma_planning_msgs::msg::GuidanceState> guidance_state_sub_;
 
+    carma_ros2_utils::SubPtr<carma_planning_msgs::msg::Route> route_sub_;
+
     // Publishers
     carma_ros2_utils::PubPtr<carma_v2x_msgs::msg::EmergencyVehicleResponse> outgoing_emergency_vehicle_response_pub_;
 
@@ -423,6 +425,8 @@ namespace approaching_emergency_vehicle_plugin
     // Boolean flag to indicate whether this node has received a Route State message in routeStateCallback()
     bool has_received_route_state_ = false;
 
+    std::vector<int> future_route_lanelet_ids_;
+
     // (Seconds) A threshold; if the estimated duration until an ERV passes the ego vehicle is below this and the
     //           ego vehicle is in the same lane as the ERV, then the ego vehicle will not reduce its speed, because
     //           doing so could cause a safety hazard.
@@ -500,6 +504,12 @@ namespace approaching_emergency_vehicle_plugin
      * \param msg The latest Route State message.
      */
     void routeStateCallback(carma_planning_msgs::msg::RouteState::UniquePtr msg);
+
+    /**
+     * \brief Route subscription callback, with is used to update this plugin's future_route_lanelet_ids_ object. 
+     * \param msg The latest Route message.
+     */
+    void routeCallback(carma_planning_msgs::msg::Route::UniquePtr msg);
 
     /**
     * \brief Subscription callback for the georeference.
