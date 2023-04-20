@@ -548,7 +548,7 @@ namespace plan_delegator
             lanelet::BasicPoint2d original_ending_lanelet_centerline_start_point = lanelet::utils::to2D(original_ending_lanelet.centerline()).front();
             double original_ending_lanelet_centerline_start_point_dt = wm_->routeTrackPos(original_ending_lanelet_centerline_start_point).downtrack;
 
-            if(adjusted_start_dist < original_ending_lanelet_centerline_start_point_dt){
+            if(adjusted_end_dist < original_ending_lanelet_centerline_start_point_dt){
                 auto previous_lanelets = wm_->getMapRoutingGraph()->previous(original_ending_lanelet, false);
 
                 if(!previous_lanelets.empty()){
