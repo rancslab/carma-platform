@@ -844,6 +844,13 @@ namespace approaching_emergency_vehicle_plugin
     if(!erv_information){
         RCLCPP_ERROR_STREAM(rclcpp::get_logger(logger_name), "BSM is not from an active ERV that is approaching the ego vehicle.");
 
+        if(has_tracked_erv_){
+          RCLCPP_ERROR_STREAM(rclcpp::get_logger(logger_name), "BSM was from the currently tracked approaching ERV! ERV is no longer approaching.");
+          has_tracked_erv_ = false;
+          has_planned_upcoming_lc_ = false;
+          transition_table_.event(ApproachingEmergencyVehicleEvent::NO_APPROACHING_ERV);
+        }
+
       // BSM is not from an active ERV that is approaching the ego vehicle
       return;
     }
