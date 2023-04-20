@@ -562,7 +562,8 @@ namespace approaching_emergency_vehicle_plugin
           erv_information.lane_index = lane_index;
         }
         else{
-          RCLCPP_ERROR_STREAM(rclcpp::get_logger(logger_name), "Detected first new lane index of " << lane_index << ", ERV's lane index will remain " << erv_information.lane_index);
+          erv_information.lane_index = tracked_erv_.previous_lane_index;
+          RCLCPP_ERROR_STREAM(rclcpp::get_logger(logger_name), "Detected first new lane index of " << lane_index << ", ERV's lane index will remain " << tracked_erv_.previous_lane_index);
         }
 
         erv_information.previous_lane_index = lane_index;
