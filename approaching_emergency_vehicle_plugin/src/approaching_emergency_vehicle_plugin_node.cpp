@@ -892,6 +892,9 @@ namespace approaching_emergency_vehicle_plugin
         }
         else{
           RCLCPP_ERROR_STREAM(rclcpp::get_logger(logger_name), "ERV has passed the ego vehicle");
+          has_tracked_erv_ = false;
+          has_planned_upcoming_lc_ = false;
+          transition_table_.event(ApproachingEmergencyVehicleEvent::ERV_PASSED);
           return boost::optional<double>();
         }
       }
@@ -966,12 +969,14 @@ namespace approaching_emergency_vehicle_plugin
   {
     // TODO: A node's first call to CARMA World Model's getLaneletsBetween() function can take 1-4 seconds. This is a workaround to conduct this process as early as possible
     //       to avoid this delay when processing ERV BSMs for Emergency Response Phase 1. A  more robust solution should be implemented for Phase 2.
-    if(has_received_route_state_){
-      RCLCPP_DEBUG_STREAM(rclcpp::get_logger(logger_name), "Making first call to getLaneletsBetween"); 
-      double ending_downtrack = wm_->getRouteEndTrackPos().downtrack;
-      wm_->getLaneletsBetween(latest_route_state_.down_track, ending_downtrack);
-      RCLCPP_DEBUG_STREAM(rclcpp::get_logger(logger_name), "Finished making first call to getLaneletsBetween"); 
-      has_received_route_state_ = true;
+    if(!has_received_route_state_){
+      if(wm_->getRoute()){
+        RCLCPP_DEBUG_STREAM(rclcpp::get_logger(logger_name), "Making first call to getLaneletsBetween"); 
+        double ending_downtrack = wm_->getRouteEndTrackPos().downtrack;
+        wm_->getLaneletsBetween(latest_route_state_.down_track, ending_downtrack);
+        RCLCPP_DEBUG_STREAM(rclcpp::get_logger(logger_name), "Finished making first call to getLaneletsBetween"); 
+        has_received_route_state_ = true;
+      }
     }
 
     latest_route_state_ = *msg;
@@ -991,9 +996,13 @@ namespace approaching_emergency_vehicle_plugin
   }
 
   void ApproachingEmergencyVehiclePlugin::routeCallback(carma_planning_msgs::msg::Route::UniquePtr msg){
+    std::vector<int> new_future_route_lanelet_ids;
+
     for(size_t i = 0; i < msg->route_path_lanelet_ids.size(); ++i){
-      future_route_lanelet_ids_.push_back(msg->route_path_lanelet_ids[i]);
+      new_future_route_lanelet_ids.push_back(msg->route_path_lanelet_ids[i]);
     }
+    
+    future_route_lanelet_ids_ = new_future_route_lanelet_ids;
   }
 
   double ApproachingEmergencyVehiclePlugin::getLaneletSpeedLimit(const lanelet::ConstLanelet& lanelet)
