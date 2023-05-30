@@ -15,7 +15,7 @@ jobs:
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/foxy/setup.bash"
         TERM: xterm
-      options: "--user carma"
+      options: "--user root"
     steps:
     - name: Checkout ${{ github.event.repository.name }}
       uses: actions/checkout@v3.3.0
