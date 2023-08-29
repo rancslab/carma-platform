@@ -1,0 +1,54 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    defaults:
+      run:
+        shell: bash
+        working-directory: "/opt/carma/"
+    runs-on: ubuntu-latest
+    container:
+      image: usdotfhwastoldev/carma-base:develop
+      env:
+        INIT_ENV: "/home/carma/.base-image/init-env.sh"
+        ROS_2_ENV: "/opt/ros/foxy/setup.bash"
+        TERM: xterm
+      options: "--user root"
+    steps:
+    - name: Checkout ${{ github.event.repository.name }}
+      uses: actions/checkout@v3.3.0
+      with:
+        fetch-depth: 0
+        path: src/${{ github.event.repository.name }}
+    - name: Move source code
+      run: mv $GITHUB_WORKSPACE/src /opt/carma/
+    - name: Checkout dependencies
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/
+    - name: Build
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV" 
+        #PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        # Define a comma-separated list of selected packages (e.g., package1,package2)
+        SELECTED_PACKAGES="carma_cmake_common,carma_msgs,j2735_v2x_msgs,qhttpengine,carma_perception_msgs,j3224_v2x_msgs,carma_v2x_msgs,carma_perception_msgs,j2735_msgs,bsm_helper,carma_v2x_msgs,delphi_esr_msgs,carma_planning_msgs,ros2_lifecycle_manager,carma_debug_ros2_msgs,carma_ros2_utils,rosapi_msgs,carma_wm,trajectory_utils_ros2,carma_guidance_plugins,basic_autonomy,wgs84_utils,carma_driver_msgs,rapidjson,rosbridge_msgs,approximate_intersection,can_msgs,carma_localization_msgs,asn1c,bsm_helper,message_filters_humble,rosbridge_test_msgs,rosbridge_library,rosapi,derived_object_msgs,motion_predict,system_controller,j2735_convertor,rosbridge_server,socketcan_interface,delphi_mrr_msgs,v2xhubWebAPI,delphi_srr_msgs,neobotix_usboard_msgs,kartech_linear_actuator_msgs,mobileye_560_660_msgs,carma-messenger,sigpack"
+        sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $SELECTED_PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+    - name: Run C++ Tests
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        #PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        # Define a comma-separated list of selected packages (e.g., package1,package2)
+        SELECTED_PACKAGES="carma_cmake_common,carma_msgs,j2735_v2x_msgs,qhttpengine,carma_perception_msgs,j3224_v2x_msgs,carma_v2x_msgs,carma_perception_msgs,j2735_msgs,bsm_helper,carma_v2x_msgs,delphi_esr_msgs,carma_planning_msgs,ros2_lifecycle_manager,carma_debug_ros2_msgs,carma_ros2_utils,rosapi_msgs,carma_wm,trajectory_utils_ros2,carma_guidance_plugins,basic_autonomy,wgs84_utils,carma_driver_msgs,rapidjson,rosbridge_msgs,approximate_intersection,can_msgs,carma_localization_msgs,asn1c,bsm_helper,message_filters_humble,rosbridge_test_msgs,rosbridge_library,rosapi,derived_object_msgs,motion_predict,system_controller,j2735_convertor,rosbridge_server,socketcan_interface,delphi_mrr_msgs,v2xhubWebAPI,delphi_srr_msgs,neobotix_usboard_msgs,kartech_linear_actuator_msgs,mobileye_560_660_msgs,carma-messenger,sigpack"
+        sed -i '/colcon test/ s/$/ --parallel-workers 4 --packages-above $SELECTED_PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov      
+    - name: Run SonarScanner
+      uses: usdot-fhwa-stol/actions/sonar-scanner@main
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        working-dir: "/opt/carma/src/${{ github.event.repository.name }}"
