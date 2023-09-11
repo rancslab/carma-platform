@@ -32,8 +32,8 @@ jobs:
       run: |
         source "$INIT_ENV"
         EXCLUDE_PACKAGES="novatel_oem7_driver novatel_oem7_msgs"
-        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1 | grep -vE "$EXCLUDE_PACKAGES")
-        sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-skip $EXCLUDE_PACKAGES --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
     - name: Run ROS1 C++ Tests
       continue-on-error: true
