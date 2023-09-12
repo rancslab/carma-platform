@@ -30,13 +30,7 @@ jobs:
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/
     - name: Build ROS1
       run: |
-        source "$INIT_ENV"
-        source "$ROS_2_ENV" 
-        EXCLUDE_PACKAGES="approximate_intersection"
-        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
-        PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
-        sed -i "/colcon build/ s/\$/ --parallel-workers 4 --packages-up-to $PACKAGES_TO_BUILD/" /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
-        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+        chmod +x build.sh
     - name: Run ROS1 C++ Tests
       continue-on-error: true
       run: |
