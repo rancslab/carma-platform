@@ -30,6 +30,7 @@ jobs:
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/
     - name: Build ROS1
       run: |
+        cd /opt/carma/src/${{ github.event.repository.name }}
         chmod +x build.sh
     - name: Run ROS1 C++ Tests
       continue-on-error: true
