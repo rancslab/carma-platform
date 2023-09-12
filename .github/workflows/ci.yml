@@ -32,7 +32,7 @@ jobs:
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV" 
-        EXCLUDE_PACKAGES="novatel_oem7_msgs"
+        EXCLUDE_PACKAGES="approximate_intersection"
         PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
         PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
         sed -i "/colcon build/ s/\$/ --parallel-workers 4 --packages-up-to $PACKAGES_TO_BUILD/" /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
@@ -56,7 +56,7 @@ jobs:
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV" 
-        EXCLUDE_PACKAGES="novatel_oem7_msgs" # You can specify ROS2 packages to exclude here
+        EXCLUDE_PACKAGES="approximate_intersection" # You can specify ROS2 packages to exclude here
         PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
         PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
         sed -i "/colcon build/ s/\$/ --parallel-workers 4 --packages-up-to $PACKAGES_TO_BUILD/" /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
