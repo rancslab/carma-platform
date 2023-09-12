@@ -8,7 +8,7 @@ source "$ROS_2_ENV"
 EXCLUDE_PACKAGES="approximate_intersection"
 
 # Find all packages
-PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+PACKAGES=$(find . -maxdepth 3 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
 
 # Filter out excluded packages
 PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
@@ -19,6 +19,11 @@ sed -i "/colcon build/ s/\$/ --parallel-workers 4 --packages-up-to $PACKAGES_TO_
 # Loop through packages and build them individually
 for package in $PACKAGES_TO_BUILD; do
     echo "Building package: $package"
+    
+    # Print the package name for debugging
+    echo "Building package: $package"
+    
+    # Attempt to build the package
     make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov $package
 
     # Check if the build failed
