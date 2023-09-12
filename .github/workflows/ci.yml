@@ -31,6 +31,8 @@ jobs:
     - name: Build ROS1
       run: |
         source "$INIT_ENV"
+        sudo apt-get install python3-ament-cmake
+        export CMAKE_PREFIX_PATH=/opt/carma/build/ament_cmake:$CMAKE_PREFIX_PATH
         EXCLUDE_PACKAGES="novatel_oem7_msgs"
         PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
         PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
