@@ -31,8 +31,7 @@ jobs:
     - name: Build ROS1
       run: |
         source "$INIT_ENV"
-        sudo apt-get install python3-ament-cmake
-        export CMAKE_PREFIX_PATH=/opt/carma/build/ament_cmake:$CMAKE_PREFIX_PATH
+        source "$ROS_2_ENV" 
         EXCLUDE_PACKAGES="novatel_oem7_msgs"
         PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
         PACKAGES_TO_BUILD=$(echo "$PACKAGES" | tr ' ' '\n' | grep -vE "$EXCLUDE_PACKAGES" | tr '\n' ' ')
@@ -42,6 +41,7 @@ jobs:
       continue-on-error: true
       run: |
         source "$INIT_ENV"
+        source "$ROS_2_ENV" 
         sed -i "/colcon test/ s/\$/ --parallel-workers 4 --packages-up-to $PACKAGES_TO_BUILD/" /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov   
     - name: Backup ROS1 compile_commands.json
